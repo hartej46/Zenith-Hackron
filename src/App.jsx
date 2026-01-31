@@ -33,9 +33,14 @@ function App() {
                     <Route
                         path="/"
                         element={
-                            <SignedIn>
-                                <Layout />
-                            </SignedIn>
+                            <>
+                                <SignedIn>
+                                    <Layout />
+                                </SignedIn>
+                                <SignedOut>
+                                    <Navigate to="/sign-in" replace />
+                                </SignedOut>
+                            </>
                         }
                     >
                         <Route index element={<Overview />} />

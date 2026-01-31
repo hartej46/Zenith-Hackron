@@ -1,0 +1,23 @@
+.app {
+    min-height: 100vh;
+}
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.cl-rootBox {
+    width: 100%;
+    max-width: 400px;
+}
+
+.cl-card {
+    background: var(--color-bg-card) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border) !important;
+    box-shadow: var(--shadow-xl) !important;
+}

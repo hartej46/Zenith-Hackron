@@ -1,0 +1,71 @@
+.urgency-panel {
+    width: 100%;
+}
+
+.alert-item {
+    transition: all var(--transition-base);
+    background: var(--color-bg-secondary);
+}
+
+.alert-item:hover {
+    transform: translateX(4px);
+}
+
+.alert-danger {
+    border-left-color: var(--color-danger);
+}
+
+.alert-warning {
+    border-left-color: var(--color-warning);
+}
+
+.alert-info {
+    border-left-color: var(--color-info);
+}
+
+.expiry-item {
+    background: var(--color-bg-secondary);
+}
+
+.expiry-item:hover {
+    outline: none;
+}
+
+.expiry-danger {
+    border-top: 2px solid var(--color-danger);
+}
+
+.expiry-warning {
+    border-top: 2px solid var(--color-warning);
+}
+
+.expiry-info {
+    border-top: 2px solid var(--color-info);
+}
+
+.critical-popup {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+.popup-content {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-danger);
+    box-shadow: var(--shadow-xl);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+}

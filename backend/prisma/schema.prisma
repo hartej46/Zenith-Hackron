@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model StockItem {
+  id              String      @id @default(cuid())
+  name            String
+  category        String
+  description     String?
+  
+  // Stock levels
+  minimumStock    Int         // Baseline requirement
+  currentStock    Int         // Real-time level
+  lastMinuteStock Int         // Critical threshold
+  
+  unit            String      @default("units") // kg, liters, pieces, etc.
+  expiryDate      DateTime?   // For urgency calculations
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  orderItems      OrderItem[]
+  alerts          UrgencyAlert[]
+  
+  @@index([category])
+  @@index([expiryDate])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  customerId    String?
+  customerName  String
+  contactInfo   String?
+  
+  priority      Priority    @default(MEDIUM)
+  status        OrderStatus @default(PENDING)
+  urgencyLevel  UrgencyLevel @default(NORMAL)
+  
+  deadline      DateTime?
+  notes         String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  completedAt   DateTime?
+  
+  items         OrderItem[]
+  tasks         Task[]
+  
+  @@index([priority])
+  @@index([status])
+  @@index([deadline])
+}
+
+model OrderItem {
+  id          String    @id @default(cuid())
+  orderId     String
+  stockItemId String
+  quantity    Int
+  
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  stockItem   StockItem @relation(fields: [stockItemId], references: [id])
+  
+  @@index([orderId])
+  @@index([stockItemId])
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  
+  assignedTo  String?     // Staff member name or ID
+  status      TaskStatus  @default(PENDING)
+  priority    Priority    @default(MEDIUM)
+  
+  dueDate     DateTime?
+  completedAt DateTime?
+  
+  orderId     String?
+  order       Order?      @relation(fields: [orderId], references: [id])
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([assignedTo])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model UrgencyAlert {
+  id          String      @id @default(cuid())
+  alertType   AlertType
+  message     String
+  severity    Severity    @default(MEDIUM)
+  
+  stockItemId String?
+  stockItem   StockItem?  @relation(fields: [stockItemId], references: [id])
+  
+  isResolved  Boolean     @default(false)
+  resolvedAt  DateTime?
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([alertType])
+  @@index([isResolved])
+  @@index([createdAt])
+}
+
+// Enums
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  NORMAL
+  ELEVATED
+  HIGH
+  CRITICAL
+}
+
+enum AlertType {
+  LOW_STOCK
+  EXPIRY_SOON
+  CRITICAL_STOCK
+  DEADLINE_APPROACHING
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

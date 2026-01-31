@@ -1,0 +1,71 @@
+.urgent-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.urgent-item {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    border: 1px solid transparent;
+}
+
+.urgent-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Severity Colors for Alerts */
+.alert-critical {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fee2e2;
+}
+
+.alert-warning {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fef3c7;
+}
+
+.alert-info {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #dbeafe;
+}
+
+/* Severity Colors for Expiries */
+.expiry-danger {
+    background: #fff1f2;
+    color: #e11d48;
+    border-color: #fecdd3;
+}
+
+.expiry-warning {
+    background: #fff7ed;
+    color: #ea580c;
+    border-color: #ffedd5;
+}
+
+.expiry-info {
+    background: #f0f9ff;
+    color: #0ea5e9;
+    border-color: #e0f2fe;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state p {
+    color: var(--color-text-tertiary);
+}

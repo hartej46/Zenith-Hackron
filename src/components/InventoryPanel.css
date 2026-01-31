@@ -1,0 +1,63 @@
+.inventory-panel {
+    width: 100%;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.inventory-item {
+    padding: var(--spacing-lg);
+    background: var(--color-bg-secondary);
+    transition: all var(--transition-base);
+}
+
+.inventory-item:hover {
+    outline: none;
+}
+
+.expiry-item {
+    background: var(--color-bg-secondary);
+}
+
+.filter-select {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.progress {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-full);
+}
+
+.progress-bar {
+    border-radius: var(--radius-full);
+}
+
+.progress-success {
+    background: var(--color-success);
+}
+
+.progress-warning {
+    background: var(--color-warning);
+}
+
+.progress-danger {
+    background: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+    .inventory-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -49,6 +49,24 @@ async def chat(request: ChatRequest):
         if not os.getenv("GROQ_API_KEY"):
             raise HTTPException(status_code=400, detail="Groq API Key not configured")
 
+        # 1.5 CHECK FOR ACTION INTENT (Agentic Behavior)
+        # Simple rule-based intent for now: "create task [title]"
+        lower_msg = request.message.lower()
+        if "create task" in lower_msg or "add task" in lower_msg:
+             # Extract title loosely (everything after 'task')
+             try:
+                 # heuristic extraction
+                 task_title = request.message.split("task", 1)[1].strip(" :").capitalize()
+                 if task_title:
+                     new_id = rag_engine.create_task(task_title, priority="HIGH")
+                     if new_id:
+                         return ChatResponse(
+                             response=f"✅ I've created a new HIGH priority task: **'{task_title}'**. You can view it in the Tasks panel.",
+                             sources=["action:create_task"]
+                         )
+             except Exception as action_e:
+                 print(f"Action failed: {action_e}")
+
         # 2. Create prompt with Zenith AI personality and data
         system_prompt = f"""You are Zenith AI, a strictly focused assistant for MSME operations, inventory management, and order tracking.
         
@@ -95,4 +113,5 @@ async def index_data():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

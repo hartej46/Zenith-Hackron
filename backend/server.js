@@ -236,11 +236,16 @@ app.post('/api/tasks', async (req, res) => {
     }
 })
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Backend API running on http://localhost:${PORT}`)
-    console.log(`📊 Ready to handle requests from frontend`)
-})
+// Export for Vercel
+export default app
+
+// Start server if run directly
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Backend API running on http://localhost:${PORT}`)
+        console.log(`📊 Ready to handle requests from frontend`)
+    })
+}
 
 // Cleanup on shutdown
 process.on('SIGINT', async () => {

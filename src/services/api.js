@@ -147,14 +147,16 @@ export const tasksAPI = {
     },
 }
 
-// AI API (Python Backend running on port 8000)
+// AI API (Python Backend)
+const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'
+
 export const aiAPI = {
     chat: async (message) => {
-        const response = await axios.post('http://localhost:8000/api/ai/chat', { message })
+        const response = await axios.post(`${AI_BASE_URL}/api/ai/chat`, { message })
         return response.data
     },
     index: async () => {
-        const response = await axios.post('http://localhost:8000/api/ai/index')
+        const response = await axios.post(`${AI_BASE_URL}/api/ai/index`)
         return response.data
     }
 }

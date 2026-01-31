@@ -37,7 +37,9 @@ function Dashboard() {
                 api.getAlerts()
             ])
 
-            setStockItems(stockData)
+            // Filter out archived items
+            const activeStockItems = stockData.filter(item => !item.isArchived)
+            setStockItems(activeStockItems)
             setOrders(ordersData)
             setAlerts(alertsData)
 
@@ -47,11 +49,11 @@ function Dashboard() {
             const urgent = alertsData.filter(alert => !alert.isResolved && alert.severity === 'CRITICAL').length
 
             setStats({
-                totalItems: stockData.length,
+                totalItems: activeStockItems.length,
                 lowStockCount: lowStock,
                 activeOrders: activeOrds,
                 urgentAlerts: urgent,
-                totalStockValue: stockData.reduce((acc, item) => acc + (item.currentStock || 0), 0)
+                totalStockValue: activeStockItems.reduce((acc, item) => acc + (item.currentStock || 0), 0)
             })
 
             setLoading(false)

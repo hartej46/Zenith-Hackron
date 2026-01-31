@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ImagePlus, ChevronDown, Check, Calendar } from 'lucide-react'
 import { api } from '../services/api'
@@ -13,30 +13,96 @@ function CreateProduct() {
         price: '',
         stockQuantity: '',
         minimumStock: 5,
+        lastMinuteStock: 2,
         expiryDate: '',
         categoryId: 'Select a category',
         featured: false,
         archived: false
     })
+    const [errors, setErrors] = useState({})
+
+    const [isCustomCategory, setIsCustomCategory] = useState(false)
+    const [categories, setCategories] = useState([])
+
+    useEffect(() => {
+        fetchCategories()
+    }, [])
+
+    const fetchCategories = async () => {
+        try {
+            const data = await api.getCategories()
+            setCategories(data)
+        } catch (error) {
+            console.error('Error fetching categories:', error)
+        }
+    }
+
+    const validateForm = () => {
+        const newErrors = {}
+        const current = parseInt(formData.stockQuantity) || 0
+        const minimum = parseInt(formData.minimumStock) || 0
+        const critical = parseInt(formData.lastMinuteStock) || 0
+
+        if (minimum > current) {
+            newErrors.minimumStock = 'Minimum threshold should be less than current stock'
+        }
+        if (critical >= minimum) {
+            newErrors.lastMinuteStock = 'Critical threshold should be less than minimum stock'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        if (!validateForm()) {
+            return
+        }
+
         try {
             setLoading(true)
+
+            // If it's a new custom category, create it first so it's saved for future
+            if (isCustomCategory && formData.categoryId) {
+                try {
+                    await api.createCategory({
+                        name: formData.categoryId,
+                        description: 'Created during product creation'
+                    })
+                } catch (err) {
+                    console.error('Failed to auto-save category:', err)
+                    // Continue anyway, just won't be saved to master list
+                }
+            }
+
             await api.createStockItem({
                 name: formData.name,
                 description: formData.description,
                 currentStock: parseInt(formData.stockQuantity) || 0,
                 minimumStock: parseInt(formData.minimumStock) || 5,
+                lastMinuteStock: parseInt(formData.lastMinuteStock) || 2,
                 expiryDate: formData.expiryDate ? new Date(formData.expiryDate).toISOString() : null,
                 unit: 'units',
-                category: formData.categoryId === 'Select a category' ? 'General' : formData.categoryId
+                category: isCustomCategory ? formData.categoryId : (formData.categoryId === 'Select a category' ? 'General' : formData.categoryId),
+                isArchived: formData.archived
             })
             setLoading(false)
             navigate('/products')
         } catch (error) {
             console.error('Error creating product:', error)
             setLoading(false)
+        }
+    }
+
+    const handleCategoryChange = (e) => {
+        const val = e.target.value
+        if (val === 'new_category_option') {
+            setIsCustomCategory(true)
+            setFormData({ ...formData, categoryId: '' })
+        } else {
+            setFormData({ ...formData, categoryId: val })
         }
     }
 
@@ -48,13 +114,7 @@ function CreateProduct() {
             </header>
 
             <form onSubmit={handleSubmit} className="product-form flex flex-col gap-2xl">
-                <section>
-                    <h3 className="text-sm font-bold mb-md uppercase tracking-wider">Images</h3>
-                    <div className="image-upload-box w-32 h-32 bg-tertiary/20 rounded-md flex flex-col items-center justify-center gap-sm cursor-pointer hover:bg-tertiary/40 transition-all">
-                        <ImagePlus size={20} className="text-secondary" />
-                        <span className="text-xs font-semibold">Upload Image</span>
-                    </div>
-                </section>
+                {/* Images section REMOVED */}
 
                 <div className="form-grid">
                     <div className="form-item">
@@ -70,19 +130,38 @@ function CreateProduct() {
 
                     <div className="form-item">
                         <label>Category</label>
-                        <div className="select-wrapper">
-                            <select
-                                value={formData.categoryId}
-                                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                            >
-                                <option disabled>Select a category</option>
-                                <option>Raw Materials</option>
-                                <option>Supplies</option>
-                                <option>Chemicals</option>
-                                <option>Finishing</option>
-                            </select>
-                            <ChevronDown size={14} className="select-icon" />
-                        </div>
+                        {isCustomCategory ? (
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Type new category..."
+                                    className="flex-1"
+                                    value={formData.categoryId}
+                                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCustomCategory(false)}
+                                    className="text-xs underline text-tertiary hover:text-primary"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="select-wrapper">
+                                <select
+                                    value={formData.categoryId}
+                                    onChange={handleCategoryChange}
+                                >
+                                    <option disabled>Select a category</option>
+                                    {categories.map(cat => (
+                                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                                    ))}
+                                    <option value="new_category_option">+ Add New Category</option>
+                                </select>
+                                <ChevronDown size={14} className="select-icon" />
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-item">
@@ -114,6 +193,18 @@ function CreateProduct() {
                             value={formData.minimumStock}
                             onChange={(e) => setFormData({ ...formData, minimumStock: e.target.value })}
                         />
+                        {errors.minimumStock && <span className="text-red-500 text-xs mt-1 block">{errors.minimumStock}</span>}
+                    </div>
+
+                    <div className="form-item">
+                        <label>Critical Stock Alert</label>
+                        <input
+                            type="number"
+                            placeholder="2"
+                            value={formData.lastMinuteStock}
+                            onChange={(e) => setFormData({ ...formData, lastMinuteStock: e.target.value })}
+                        />
+                        {errors.lastMinuteStock && <span className="text-red-500 text-xs mt-1 block">{errors.lastMinuteStock}</span>}
                     </div>
 
                     <div className="form-item">
@@ -139,37 +230,18 @@ function CreateProduct() {
                     />
                 </div>
 
-                <div className="checkbox-row flex gap-2xl">
-                    <label className="checkbox-item flex items-start gap-md p-lg border border-transparent rounded-lg cursor-pointer hover:bg-tertiary/20 transition-all flex-1 shadow-sm">
-                        <div className={`checkbox-box ${formData.featured ? 'checked' : ''}`}>
-                            {formData.featured && <Check size={12} />}
-                        </div>
-                        <input
-                            type="checkbox"
-                            checked={formData.featured}
-                            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                            hidden
-                        />
-                        <div className="checkbox-text">
-                            <span className="block font-bold text-sm">Featured Product</span>
-                            <span className="block text-xs text-tertiary">Promote this on the dashboard overview</span>
-                        </div>
-                    </label>
-
-                    <label className="checkbox-item flex items-start gap-md p-lg border border-transparent rounded-lg cursor-pointer hover:bg-tertiary/20 transition-all flex-1 shadow-sm">
+                <div className="form-item checkbox-row flex items-center gap-md">
+                    <label className="flex items-center gap-sm cursor-pointer select-none">
                         <div className={`checkbox-box ${formData.archived ? 'checked' : ''}`}>
                             {formData.archived && <Check size={12} />}
                         </div>
                         <input
                             type="checkbox"
+                            className="hidden"
                             checked={formData.archived}
                             onChange={(e) => setFormData({ ...formData, archived: e.target.checked })}
-                            hidden
                         />
-                        <div className="checkbox-text">
-                            <span className="block font-bold text-sm">Archive Item</span>
-                            <span className="block text-xs text-tertiary">Hide this product from active inventories</span>
-                        </div>
+                        <span>Archived Project (Hidden from Overview)</span>
                     </label>
                 </div>
 

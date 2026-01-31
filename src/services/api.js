@@ -147,6 +147,24 @@ export const tasksAPI = {
     },
 }
 
+// Categories API
+export const categoriesAPI = {
+    getAll: async () => {
+        const response = await apiClient.get('/categories')
+        return response.data
+    },
+
+    create: async (data) => {
+        const response = await apiClient.post('/categories', data)
+        return response.data
+    },
+
+    delete: async (id) => {
+        const response = await apiClient.delete(`/categories/${id}`)
+        return response.data
+    },
+}
+
 // AI API (Python Backend)
 const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'
 
@@ -194,6 +212,11 @@ export const api = {
     // AI
     chatAI: aiAPI.chat,
     indexAIData: aiAPI.index,
+
+    // Categories
+    getCategories: categoriesAPI.getAll,
+    createCategory: categoriesAPI.create,
+    deleteCategory: categoriesAPI.delete,
 }
 
 export default api

@@ -22,6 +22,7 @@ model StockItem {
   
   unit            String      @default("units") // kg, liters, pieces, etc.
   expiryDate      DateTime?   // For urgency calculations
+  isArchived      Boolean     @default(false)
   
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -111,6 +112,14 @@ model UrgencyAlert {
   @@index([alertType])
   @@index([isResolved])
   @@index([createdAt])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Enums

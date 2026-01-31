@@ -1,0 +1,12 @@
+.categories-page {
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Card hover effects are handled by Tailwind utility classes in the JSX */
+
+/* Modal styling handled by Tailwind, ensuring it is on top */
+.fixed {
+    z-index: 50;
+}

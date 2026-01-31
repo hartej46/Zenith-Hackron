@@ -170,6 +170,7 @@ function StockInputForm({ onSuccess }) {
                         <option value="">Select Category</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
+                    {errors.category && <span className="error-message">{errors.category}</span>}
                 </div>
 
                 <div className="form-group">
@@ -197,6 +198,7 @@ function StockInputForm({ onSuccess }) {
                             min="0"
                             required
                         />
+                        {errors.currentStock && <span className="error-message">{errors.currentStock}</span>}
                     </div>
 
                     <div className="form-group">
@@ -210,6 +212,7 @@ function StockInputForm({ onSuccess }) {
                             min="0"
                             required
                         />
+                        {errors.minimumStock && <span className="error-message">{errors.minimumStock}</span>}
                     </div>
 
                     <div className="form-group">
@@ -223,6 +226,7 @@ function StockInputForm({ onSuccess }) {
                             min="0"
                             required
                         />
+                        {errors.lastMinuteStock && <span className="error-message">{errors.lastMinuteStock}</span>}
                     </div>
                 </div>
 

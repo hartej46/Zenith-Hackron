@@ -60,6 +60,43 @@ app.delete('/api/stock-items/:id', async (req, res) => {
     }
 })
 
+// Categories Routes
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = await prisma.category.findMany({
+            orderBy: { name: 'asc' }
+        })
+        res.json(categories)
+    } catch (error) {
+        console.error('Error fetching categories:', error)
+        res.status(500).json({ error: 'Failed to fetch categories' })
+    }
+})
+
+app.post('/api/categories', async (req, res) => {
+    try {
+        const category = await prisma.category.create({
+            data: req.body
+        })
+        res.json(category)
+    } catch (error) {
+        console.error('Error creating category:', error)
+        res.status(500).json({ error: 'Failed to create category' })
+    }
+})
+
+app.delete('/api/categories/:id', async (req, res) => {
+    try {
+        await prisma.category.delete({
+            where: { id: req.params.id }
+        })
+        res.json({ message: 'Category deleted' })
+    } catch (error) {
+        console.error('Error deleting category:', error)
+        res.status(500).json({ error: 'Failed to delete category' })
+    }
+})
+
 // Orders Routes
 app.get('/api/orders', async (req, res) => {
     try {

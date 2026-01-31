@@ -23,6 +23,27 @@ class RAGEngine:
         except Exception as e:
             print(f"⚠️ Initial indexing failed: {e}")
 
+    def create_task(self, title: str, priority: str = "MEDIUM", description: str = "Created by AI Agent"):
+        """Create a new task in the database"""
+        try:
+            conn = psycopg.connect(os.getenv("DATABASE_URL"))
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO "Task" (id, title, description, priority, status, "updatedAt")
+                    VALUES (gen_random_uuid(), %s, %s, %s::"Priority", 'PENDING', NOW())
+                    RETURNING id
+                    """,
+                    (title, description, priority.upper())
+                )
+                new_id = cur.fetchone()[0]
+                conn.commit()
+                print(f"✅ AI Created Task: {title} ({new_id})")
+                return new_id
+        except Exception as e:
+            print(f"❌ Failed to create task: {e}")
+            return None
+
     def fetch_data_from_db(self):
         conn = psycopg.connect(os.getenv("DATABASE_URL"), row_factory=dict_row)
         cur = conn.cursor()

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, SignIn } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react'
 import Layout from './components/Layout'
 import Overview from './pages/Overview'
 import Categories from './pages/Categories'
@@ -24,8 +24,23 @@ function App() {
                                 <SignIn
                                     routing="path"
                                     path="/sign-in"
+                                    signUpUrl="/sign-up"
                                     afterSignInUrl="/"
                                     afterSignUpUrl="/"
+                                />
+                            </div>
+                        }
+                    />
+                    <Route
+                        path="/sign-up/*"
+                        element={
+                            <div className="auth-container">
+                                <SignUp
+                                    routing="path"
+                                    path="/sign-up"
+                                    signInUrl="/sign-in"
+                                    afterSignUpUrl="/"
+                                    afterSignInUrl="/"
                                 />
                             </div>
                         }
